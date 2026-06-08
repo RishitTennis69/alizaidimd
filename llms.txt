@@ -1,0 +1,12 @@
+# Ali Zaidi, MD — Performance Medicine
+
+> Proactive, personalized, preventative care.
+
+## Pages
+
+- [Home](index.html) — membership and FAQ are sections on the homepage
+- [Blog](blog.html)
+
+## Contact
+
+Book a consult via the form on the homepage.
