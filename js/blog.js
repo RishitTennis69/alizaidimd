@@ -1,5 +1,5 @@
 function blogPostUrl(post) {
-  return post.canonical;
+  return `post.html?p=${encodeURIComponent(post.slug)}`;
 }
 
 function renderBlogCard(post) {
@@ -33,10 +33,12 @@ function initBlogPage() {
 }
 
 function initBlogPostPage() {
+  const main = document.getElementById('post-content');
+  if (!main) return;
+
   const params = new URLSearchParams(window.location.search);
   const slug = params.get('p');
   const post = slug && window.getBlogPost ? window.getBlogPost(slug) : null;
-  const main = document.getElementById('post-content');
 
   if (!post) {
     const fallback = slug
@@ -45,8 +47,6 @@ function initBlogPostPage() {
     window.location.replace(fallback);
     return;
   }
-
-  if (!main) return;
 
   document.title = `${post.title} | Dr. Ali Zaidi, MD`;
   const desc = document.querySelector('meta[name="description"]');

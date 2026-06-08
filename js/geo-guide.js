@@ -24,7 +24,7 @@
       label: 'Blog Preview',
       category: 'Content',
       selector: '#blog',
-      desc: 'Homepage blog grid — each card links to the full article on alizaidimd.com.'
+      desc: 'Homepage blog grid — each card opens a local preview with a link to the full article on alizaidimd.com.'
     },
     {
       id: 'blog-alt-text',
@@ -64,7 +64,7 @@
       label: 'Blog Index',
       category: 'Content',
       selector: '#blog-grid-all',
-      desc: 'Full blog listing — cards link to articles on alizaidimd.com.'
+      desc: 'Full blog listing — local previews with links to full articles on alizaidimd.com.'
     },
     {
       id: 'blog-alt-blog',

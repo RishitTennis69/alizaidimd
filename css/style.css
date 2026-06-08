@@ -14,7 +14,7 @@
   --radius-card: 18px;
   --radius-pill: 55px;
   --header-h: 118px;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   --transition: 0.25s ease;
 }
 
