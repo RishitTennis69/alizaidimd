@@ -3,42 +3,6 @@
 
   const GEO_SPOTS = [
     {
-      id: 'physician-jsonld',
-      page: 'index.html',
-      label: 'Physician JSON-LD',
-      category: 'Schema',
-      selector: null,
-      desc: 'Structured Physician data in the homepage <head> — opens in a separate tab.',
-      link: 'geo-ref/physician-jsonld.html'
-    },
-    {
-      id: 'faq-schema',
-      page: 'index.html',
-      label: 'FAQPage JSON-LD',
-      category: 'Schema',
-      selector: null,
-      desc: 'FAQPage structured data paired with the homepage FAQ accordion — opens in a separate tab.',
-      link: 'geo-ref/faq-schema.html'
-    },
-    {
-      id: 'social-meta',
-      page: 'index.html',
-      label: 'Open Graph & Twitter Meta',
-      category: 'Schema',
-      selector: null,
-      desc: 'Social sharing tags in the homepage <head> — opens in a separate tab.',
-      link: 'geo-ref/social-meta.html'
-    },
-    {
-      id: 'meta-description',
-      page: 'index.html',
-      label: 'Meta Description',
-      category: 'Schema',
-      selector: null,
-      desc: 'The meta description tag search engines use for the homepage snippet — opens in a separate tab.',
-      link: 'geo-ref/meta-description.html'
-    },
-    {
       id: 'homepage-blog',
       page: 'index.html',
       label: 'Blog Preview',
@@ -85,15 +49,6 @@
       category: 'On-Page',
       selector: '#main-content',
       desc: 'The <main> element gives crawlers a clear content boundary.'
-    },
-    {
-      id: 'blog-head-meta',
-      page: 'blog.html',
-      label: 'Blog JSON-LD',
-      category: 'Schema',
-      selector: null,
-      desc: 'Blog structured data in blog.html <head> — opens in a separate tab.',
-      link: 'geo-ref/blog-schema.html'
     },
     {
       id: 'blog-index',
@@ -145,6 +100,21 @@
       selector: null,
       desc: 'Plain-text site summary for LLM crawlers.',
       link: 'llms.txt'
+    },
+    {
+      id: 'head-metadata',
+      page: 'index.html',
+      label: 'Schema & Head Metadata',
+      category: 'Schema',
+      selector: null,
+      desc: 'Physician JSON-LD, FAQPage JSON-LD, Open Graph, Twitter meta, meta description, and Blog JSON-LD — all open in separate tabs at once.',
+      links: [
+        'geo-ref/physician-jsonld.html',
+        'geo-ref/faq-schema.html',
+        'geo-ref/social-meta.html',
+        'geo-ref/meta-description.html',
+        'geo-ref/blog-schema.html'
+      ]
     }
   ];
 
@@ -153,6 +123,21 @@
   let highlightEl = null;
   let highlightRing = null;
   let highlightListenersBound = false;
+
+  function isExternalSpot(spot) {
+    return Boolean(spot.link || spot.links);
+  }
+
+  function openSpotTabs(spot) {
+    clearHighlight();
+    if (spot.links) {
+      spot.links.forEach((url) => window.open(url, '_blank', 'noopener'));
+      return;
+    }
+    if (spot.link) {
+      window.open(spot.link, '_blank', 'noopener');
+    }
+  }
 
   function ensureHighlightRing() {
     if (!highlightRing) {
@@ -213,13 +198,21 @@
   }
 
   function isOnPage(spot) {
-    if (spot.link) return false;
+    if (isExternalSpot(spot)) return false;
     const page = currentPageFile();
     return page === spot.page || (spot.page === 'index.html' && (page === '' || page === 'index.html'));
   }
 
   function findSpotIndex(id) {
-    const i = GEO_SPOTS.findIndex(s => s.id === id);
+    const legacySchemaIds = {
+      'physician-jsonld': 'head-metadata',
+      'faq-schema': 'head-metadata',
+      'social-meta': 'head-metadata',
+      'meta-description': 'head-metadata',
+      'blog-head-meta': 'head-metadata'
+    };
+    const resolvedId = legacySchemaIds[id] || id;
+    const i = GEO_SPOTS.findIndex(s => s.id === resolvedId);
     return i >= 0 ? i : 0;
   }
 
@@ -305,10 +298,13 @@
     panelOpen = true;
     saveTourState();
 
-    if (spot.link) {
+    if (isExternalSpot(spot)) {
       openPanel();
       updatePanel();
-      window.open(spot.link, '_blank', 'noopener');
+      openSpotTabs(spot);
+      const url = new URL(window.location.href);
+      url.searchParams.set('geo', spot.id);
+      window.history.replaceState({}, '', url);
       return;
     }
 
@@ -388,8 +384,8 @@
     openPanel();
     updatePanel();
     const spot = GEO_SPOTS[currentIndex];
-    if (spot.link) {
-      window.open(spot.link, '_blank', 'noopener');
+    if (isExternalSpot(spot)) {
+      openSpotTabs(spot);
     } else if (isOnPage(spot)) {
       scrollToSpot(spot);
     }
@@ -449,8 +445,8 @@
       updatePanel();
       const spot = GEO_SPOTS[currentIndex];
       setTimeout(() => {
-        if (spot.link) {
-          window.open(spot.link, '_blank', 'noopener');
+        if (isExternalSpot(spot)) {
+          openSpotTabs(spot);
         } else if (isOnPage(spot) && spot.selector) {
           scrollToSpot(spot);
         }
