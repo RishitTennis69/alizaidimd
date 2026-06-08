@@ -15,8 +15,9 @@
       page: 'index.html',
       label: 'Blog Image Alt Text',
       category: 'On-Page',
-      selector: '#blog-grid-preview .blog-card:first-child',
-      desc: 'Descriptive alt text on blog card images for accessibility and image search.'
+      selector: '#blog-grid-preview .blog-card:first-child img',
+      desc: 'Descriptive alt text on blog card images for accessibility and image search.',
+      imageHighlight: true
     },
     {
       id: 'faq-accordion',
@@ -59,14 +60,6 @@
       desc: 'Full blog listing with local article previews for every post.'
     },
     {
-      id: 'blog-alt-blog',
-      page: 'blog.html',
-      label: 'Blog Alt Text',
-      category: 'On-Page',
-      selector: '#blog-grid-all .blog-card:first-child',
-      desc: 'Descriptive alt text on each blog card image.'
-    },
-    {
       id: 'article-preview',
       page: 'post.html',
       label: 'Article Preview + Schema',
@@ -107,8 +100,9 @@
       label: 'Schema & Head Metadata',
       category: 'Schema',
       selector: null,
-      desc: 'Physician JSON-LD, FAQPage JSON-LD, Open Graph, Twitter meta, meta description, and Blog JSON-LD — all open in separate tabs at once.',
+      desc: 'Physician JSON-LD, FAQPage JSON-LD, Open Graph, Twitter meta, meta description, and Blog JSON-LD — opens in separate tabs.',
       links: [
+        'geo-ref/head-metadata.html',
         'geo-ref/physician-jsonld.html',
         'geo-ref/faq-schema.html',
         'geo-ref/social-meta.html',
@@ -131,14 +125,21 @@
 
   function openSpotTabs(spot) {
     clearHighlight();
-    if (spot.links) {
-      spot.links.forEach((url) => window.open(url, '_blank', 'noopener'));
-      return;
-    }
-    if (spot.link) {
-      window.open(spot.link, '_blank', 'noopener');
-    }
+    const urls = spot.links || (spot.link ? [spot.link] : []);
+    if (!urls.length) return;
+
+    urls.forEach((url, i) => {
+      if (i === 0) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      setTimeout(() => {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }, i * 300);
+    });
   }
+
+  let highlightPad = 10;
 
   function ensureHighlightRing() {
     if (!highlightRing) {
@@ -153,7 +154,7 @@
 
   function positionHighlightRing(el) {
     const ring = ensureHighlightRing();
-    const pad = 10;
+    const pad = highlightPad;
 
     const update = () => {
       if (!highlightEl || highlightEl !== el) return;
@@ -261,8 +262,9 @@
     }
   }
 
-  function applyHighlight(el) {
+  function applyHighlight(el, spot) {
     highlightEl = el;
+    highlightPad = (spot?.imageHighlight || el.tagName === 'IMG') ? 4 : 10;
     el.classList.add('geo-guide-highlight');
     positionHighlightRing(el);
     smoothScrollTo(el);
@@ -279,7 +281,7 @@
       return;
     }
 
-    applyHighlight(el);
+    applyHighlight(el, spot);
   }
 
   function openPanel() {

@@ -24,6 +24,12 @@ h1 {
   margin-bottom: 8px;
 }
 
+h2 {
+  font-size: 18px;
+  color: #4a6f6b;
+  margin-bottom: 8px;
+}
+
 .note {
   font-size: 14px;
   color: #4b5563;

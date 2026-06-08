@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Schema &amp; Head Metadata — GEO Reference</title>
+  <link rel="stylesheet" href="geo-ref.css">
+  <style>
+    main { max-width: 820px; }
+    section { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid #e5e7eb; }
+    section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Schema &amp; Head Metadata</h1>
+    <p class="note">All structured data and meta tags injected in page &lt;head&gt; elements.</p>
+
+    <section>
+      <h2>Physician JSON-LD</h2>
+      <p class="note">Injected in <code>index.html</code> &lt;head&gt;</p>
+      <pre>{
+  "@context": "https://schema.org",
+  "@type": "Physician",
+  "name": "Dr. Ali Ali Zaidi",
+  "url": "https://www.alizaidimd.com",
+  "email": "contact@alizaidimd.com",
+  "image": "https://static.wixstatic.com/media/4ccdaa_26b7503f29e64699b4822bdd56d0df6f~mv2.avif/v1/fill/w_600,h_500,fp_0.48_0.41,lg_1,q_80,enc_avif,quality_auto/Ali%20headshot.avif",
+  "description": "Proactive, personalized, preventative care."
+}</pre>
+    </section>
+
+    <section>
+      <h2>FAQPage JSON-LD</h2>
+      <p class="note">Injected in <code>index.html</code> &lt;head&gt;, paired with the FAQ accordion</p>
+      <pre>{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is Performance Medicine?", "acceptedAnswer": { "@type": "Answer", "text": "Proactive, personalized, preventative care." } },
+    { "@type": "Question", "name": "What does membership include?", "acceptedAnswer": { "@type": "Answer", "text": "Initial Complimentary Consultation (virtual), Initial 90 minute intake consultation (in person), Comprehensive lab work, DEXA scan, V02 max assessment, Customized plan focusing on 1 area to improve, Virtual check-ins every 1-2 weeks to track progress, and Repeat DEXA scan and V02 max assessment when appropriate." } },
+    { "@type": "Question", "name": "What services do you offer?", "acceptedAnswer": { "@type": "Answer", "text": "Diagnostics (blood work, DEXA scan, VO2 max testing, continuous glucose monitoring), a personalized plan for nutrition, exercise, sleep, and supplements, and progress tracking with data-driven check-ins." } },
+    { "@type": "Question", "name": "Who is Dr. Ali Zaidi?", "acceptedAnswer": { "@type": "Answer", "text": "A Stanford, UCSF, and Penn trained physician who has spent the past decade studying longevity and how lifestyle changes can improve health." } },
+    { "@type": "Question", "name": "What makes this practice different?", "acceptedAnswer": { "@type": "Answer", "text": "Personalized, prevention-focused care designed for long-term health — not just symptom relief. Care is data-driven, one-on-one with Dr. Zaidi, and takes a whole-body approach." } },
+    { "@type": "Question", "name": "How do I book a consult?", "acceptedAnswer": { "@type": "Answer", "text": "Fill out the Book a Consult form on the homepage." } }
+  ]
+}</pre>
+    </section>
+
+    <section>
+      <h2>Open Graph &amp; Twitter Meta</h2>
+      <p class="note">Injected in <code>index.html</code> &lt;head&gt;</p>
+      <dl>
+        <div><dt>og:title</dt><dd>Personalized Chronic Disease Prevention | Dr. Ali Zaidi, MD</dd></div>
+        <div><dt>og:description</dt><dd>Proactive, personalized, preventative care. Performance medicine to help you live your best life.</dd></div>
+        <div><dt>og:type</dt><dd>website</dd></div>
+        <div><dt>og:url</dt><dd>https://www.alizaidimd.com/</dd></div>
+        <div><dt>og:image</dt><dd>Ali headshot (1200×630)</dd></div>
+        <div><dt>twitter:card</dt><dd>summary_large_image</dd></div>
+        <div><dt>twitter:title</dt><dd>Dr. Ali Zaidi, MD — Performance Medicine</dd></div>
+        <div><dt>twitter:description</dt><dd>Proactive, personalized, preventative care.</dd></div>
+      </dl>
+    </section>
+
+    <section>
+      <h2>Meta Description</h2>
+      <p class="note">The <code>&lt;meta name="description"&gt;</code> tag in <code>index.html</code> &lt;head&gt;</p>
+      <p class="value">Personalized Chronic Disease Prevention | Dr. Ali Zaidi, MD. Proactive, personalized, preventative care.</p>
+    </section>
+
+    <section>
+      <h2>Blog JSON-LD</h2>
+      <p class="note">Injected in <code>blog.html</code> &lt;head&gt;</p>
+      <pre>{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "Insights for a Healthier, Longer Life",
+  "description": "Expert-backed articles on chronic disease prevention, longevity, and lifestyle medicine by Dr. Ali Zaidi, MD.",
+  "url": "https://www.alizaidimd.com/blog.html",
+  "author": { "@type": "Person", "name": "Ali Zaidi" }
+}</pre>
+    </section>
+  </main>
+</body>
+</html>
