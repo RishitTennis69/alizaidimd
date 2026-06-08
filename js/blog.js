@@ -41,10 +41,7 @@ function initBlogPostPage() {
   const post = slug && window.getBlogPost ? window.getBlogPost(slug) : null;
 
   if (!post) {
-    const fallback = slug
-      ? `https://www.alizaidimd.com/post/${encodeURIComponent(slug)}`
-      : 'https://www.alizaidimd.com/blog';
-    window.location.replace(fallback);
+    main.innerHTML = '<p class="post-error">Article not found. <a href="blog.html">Back to blog</a></p>';
     return;
   }
 

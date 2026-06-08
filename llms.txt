@@ -2,10 +2,20 @@
 
 > Proactive, personalized, preventative care.
 
+## About
+
+Dr. Ali Zaidi, MD offers performance medicine — proactive, personalized, preventative care focused on longevity and chronic disease prevention.
+
 ## Pages
 
-- [Home](index.html) — membership and FAQ are sections on the homepage
-- [Blog](blog.html)
+- [Home](index.html) — About, Services, Membership, FAQ, and consult form
+- [Blog](blog.html) — Articles on sleep, metabolism, fitness, and prevention
+
+## GEO / Crawler files
+
+- [robots.txt](robots.txt) — Allows GPTBot, ClaudeBot, Googlebot, Bingbot
+- [sitemap.xml](sitemap.xml) — Site URL map
+- [llms.txt](llms.txt) — This file
 
 ## Contact
 

@@ -5,18 +5,10 @@
     {
       id: 'head-meta',
       page: 'index.html',
-      label: 'Page Head Metadata',
+      label: 'JSON-LD & Head Metadata',
       category: 'Schema',
       selector: '#geo-spot-head-meta',
-      desc: 'Physician JSON-LD, FAQPage JSON-LD, Open Graph, Twitter cards, and meta description — all in the <head>, not visible on the page.'
-    },
-    {
-      id: 'skip-link',
-      page: 'index.html',
-      label: 'Skip Link',
-      category: 'Accessibility',
-      selector: '.skip-link',
-      desc: 'Lets keyboard and screen-reader users jump straight to main content.'
+      desc: 'Physician JSON-LD, FAQPage JSON-LD, Open Graph, Twitter cards, and meta description — all in the page <head>.'
     },
     {
       id: 'homepage-blog',
@@ -24,7 +16,7 @@
       label: 'Blog Preview',
       category: 'Content',
       selector: '#blog',
-      desc: 'Homepage blog grid — each card opens a local preview with a link to the full article on alizaidimd.com.'
+      desc: 'Homepage blog grid — each card opens a local article preview on this site.'
     },
     {
       id: 'blog-alt-text',
@@ -43,6 +35,14 @@
       desc: 'Expandable FAQ cards paired with FAQPage schema in the head.'
     },
     {
+      id: 'biomarker-guide',
+      page: 'index.html',
+      label: 'Lead Magnet Section',
+      category: 'Content',
+      selector: '#biomarker-guide',
+      desc: 'Biomarker guide signup — keyword-rich on-page content with a clear CTA.'
+    },
+    {
       id: 'footer-links',
       page: 'index.html',
       label: 'Internal Footer Links',
@@ -51,12 +51,12 @@
       desc: 'Footer anchor links to key sections for crawler discovery.'
     },
     {
-      id: 'blog-head-meta',
-      page: 'blog.html',
-      label: 'Blog Head Metadata',
-      category: 'Schema',
-      selector: '#geo-spot-head-meta',
-      desc: 'Blog JSON-LD and meta description in the page <head>, not visible on the page.'
+      id: 'semantic-main',
+      page: 'index.html',
+      label: 'Semantic Main Landmark',
+      category: 'On-Page',
+      selector: '#main-content',
+      desc: 'The <main> element gives crawlers a clear content boundary.'
     },
     {
       id: 'blog-index',
@@ -64,7 +64,7 @@
       label: 'Blog Index',
       category: 'Content',
       selector: '#blog-grid-all',
-      desc: 'Full blog listing — local previews with links to full articles on alizaidimd.com.'
+      desc: 'Full blog listing with local article previews for every post.'
     },
     {
       id: 'blog-alt-blog',
@@ -77,37 +77,31 @@
     {
       id: 'article-preview',
       page: 'post.html',
-      label: 'Article Preview',
+      label: 'Article Preview + Schema',
       category: 'Schema',
       selector: '#post-content',
-      desc: 'GEO demo page with Article JSON-LD. Live blog cards link directly to alizaidimd.com.'
+      desc: 'Local article page with excerpt and Article JSON-LD injected on load.'
     },
     {
       id: 'robots-txt',
-      page: 'robots.txt',
       label: 'robots.txt',
       category: 'Crawler',
-      selector: null,
-      desc: 'Allows major search bots and AI crawlers (GPTBot, ClaudeBot, etc.).',
-      link: 'robots.txt'
+      previewUrl: 'robots.txt',
+      desc: 'Tells search bots and AI crawlers (GPTBot, ClaudeBot, etc.) they are allowed to index the site.'
     },
     {
       id: 'sitemap-xml',
-      page: 'sitemap.xml',
       label: 'sitemap.xml',
       category: 'Crawler',
-      selector: null,
-      desc: 'URL map for crawlers listing the homepage and blog.',
-      link: 'sitemap.xml'
+      previewUrl: 'sitemap.xml',
+      desc: 'XML URL map listing pages for crawlers.'
     },
     {
       id: 'llms-txt',
-      page: 'llms.txt',
       label: 'llms.txt',
       category: 'Crawler',
-      selector: null,
-      desc: 'Plain-text site summary for LLM crawlers.',
-      link: 'llms.txt'
+      previewUrl: 'llms.txt',
+      desc: 'Plain-text site summary for LLM crawlers — shown below when you visit this stop.'
     }
   ];
 
@@ -155,6 +149,11 @@
     if (highlightEl) positionHighlightRing(highlightEl);
   }
 
+  function smoothScrollTo(el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    [120, 350, 700, 1100, 1600].forEach((ms) => setTimeout(positionActiveHighlight, ms));
+  }
+
   function currentPageFile() {
     let path = window.location.pathname.split('/').pop() || '';
     if (!path) return 'index.html';
@@ -163,7 +162,7 @@
   }
 
   function spotUrl(spot) {
-    if (spot.link) return spot.link;
+    if (spot.previewUrl) return null;
     if (spot.page === 'post.html') {
       return `post.html?p=why-i-care-more-about-when-you-wake-up-than-when-you-go-to-bed&geo=${spot.id}`;
     }
@@ -171,7 +170,7 @@
   }
 
   function isOnPage(spot) {
-    if (spot.link) return false;
+    if (spot.previewUrl) return true;
     const page = currentPageFile();
     return page === spot.page || (spot.page === 'index.html' && (page === '' || page === 'index.html'));
   }
@@ -203,11 +202,17 @@
     }
   }
 
+  function hideFilePreviewBox() {
+    const box = document.getElementById('geo-file-preview');
+    if (box) box.hidden = true;
+  }
+
   function clearHighlight() {
     document.querySelectorAll('.geo-spot-chip.geo-guide-highlight').forEach((el) => {
       el.classList.remove('geo-guide-highlight');
       el.setAttribute('aria-hidden', 'true');
     });
+    hideFilePreviewBox();
     if (highlightEl) {
       highlightEl.classList.remove('geo-guide-highlight');
       highlightEl = null;
@@ -224,8 +229,69 @@
       el.setAttribute('aria-hidden', 'false');
     }
     positionHighlightRing(el);
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    [120, 350, 700, 1100].forEach((ms) => setTimeout(positionActiveHighlight, ms));
+    smoothScrollTo(el);
+  }
+
+  function ensureFilePreviewBox() {
+    let box = document.getElementById('geo-file-preview');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'geo-file-preview';
+      box.className = 'geo-file-preview';
+      box.hidden = true;
+      box.innerHTML = `
+        <p class="geo-file-preview-label"></p>
+        <pre class="geo-file-preview-content"></pre>
+      `;
+      document.body.appendChild(box);
+    }
+    return box;
+  }
+
+  async function showFilePreview(spot) {
+    clearHighlight();
+    const box = ensureFilePreviewBox();
+    const label = box.querySelector('.geo-file-preview-label');
+    const pre = box.querySelector('.geo-file-preview-content');
+    label.textContent = spot.previewUrl;
+    pre.textContent = 'Loading…';
+    box.hidden = false;
+
+    try {
+      const res = await fetch(spot.previewUrl);
+      pre.textContent = await res.text();
+    } catch {
+      pre.textContent = 'Could not load file.';
+    }
+
+    applyHighlight(box);
+    loadPanelFileSnippet(spot);
+  }
+
+  async function loadPanelFileSnippet(spot) {
+    const snippet = document.getElementById('geo-guide-file-snippet');
+    if (!snippet || !spot.previewUrl) {
+      if (snippet) snippet.hidden = true;
+      return;
+    }
+
+    snippet.hidden = false;
+    snippet.textContent = 'Loading…';
+
+    try {
+      const res = await fetch(spot.previewUrl);
+      snippet.textContent = await res.text();
+    } catch {
+      snippet.textContent = 'Could not load file.';
+    }
+  }
+
+  function hidePanelFileSnippet() {
+    const snippet = document.getElementById('geo-guide-file-snippet');
+    if (snippet) {
+      snippet.hidden = true;
+      snippet.textContent = '';
+    }
   }
 
   function scrollToSpot(spot, attempt = 0) {
@@ -233,12 +299,13 @@
     if (!spot.selector) return;
     const el = document.querySelector(spot.selector);
     if (!el) {
-      if (attempt < 8) {
+      if (attempt < 12) {
         setTimeout(() => scrollToSpot(spot, attempt + 1), 150);
       }
       return;
     }
     applyHighlight(el);
+    hidePanelFileSnippet();
   }
 
   function openPanel() {
@@ -258,6 +325,7 @@
     toggle.setAttribute('aria-expanded', 'false');
     panelOpen = false;
     clearHighlight();
+    hidePanelFileSnippet();
     clearTourState();
   }
 
@@ -267,10 +335,13 @@
     panelOpen = true;
     saveTourState();
 
-    if (spot.link) {
+    if (spot.previewUrl) {
       openPanel();
       updatePanel();
-      window.open(spot.link, '_blank', 'noopener');
+      showFilePreview(spot);
+      const url = new URL(window.location.href);
+      url.searchParams.set('geo', spot.id);
+      window.history.replaceState({}, '', url);
       return;
     }
 
@@ -301,6 +372,7 @@
         <p class="geo-guide-counter" id="geo-guide-counter">1 / ${GEO_SPOTS.length}</p>
         <h3 class="geo-guide-title" id="geo-guide-title"></h3>
         <p class="geo-guide-desc" id="geo-guide-desc"></p>
+        <pre class="geo-guide-file-snippet" id="geo-guide-file-snippet" hidden></pre>
         <div class="geo-guide-actions">
           <button type="button" class="geo-guide-btn geo-guide-prev" id="geo-guide-prev">&larr; Prev</button>
           <button type="button" class="geo-guide-btn geo-guide-next" id="geo-guide-next">Next &rarr;</button>
@@ -350,7 +422,11 @@
     openPanel();
     updatePanel();
     const spot = GEO_SPOTS[currentIndex];
-    if (isOnPage(spot)) scrollToSpot(spot);
+    if (spot.previewUrl) {
+      showFilePreview(spot);
+    } else if (isOnPage(spot)) {
+      scrollToSpot(spot);
+    }
   }
 
   function updatePanel() {
@@ -361,22 +437,26 @@
     document.getElementById('geo-guide-desc').textContent = spot.desc;
     document.getElementById('geo-guide-toggle').textContent = `GEO Guide (${currentIndex + 1}/${GEO_SPOTS.length})`;
 
+    if (!spot.previewUrl) {
+      hidePanelFileSnippet();
+    }
+
     document.querySelectorAll('.geo-guide-list-item').forEach((btn, i) => {
       btn.classList.toggle('active', i === currentIndex);
     });
 
     const activeBtn = document.querySelector('.geo-guide-list-item.active');
-    activeBtn?.scrollIntoView({ block: 'nearest' });
+    activeBtn?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
   function initCurrentPageSpot() {
-    const page = currentPageFile();
     const geoId = new URLSearchParams(window.location.search).get('geo');
     if (geoId) {
       currentIndex = findSpotIndex(geoId);
       return;
     }
 
+    const page = currentPageFile();
     if (page === 'post.html') {
       const i = GEO_SPOTS.findIndex(s => s.id === 'article-preview');
       if (i >= 0) currentIndex = i;
@@ -384,13 +464,12 @@
     }
 
     if (page === 'blog.html') {
-      const i = GEO_SPOTS.findIndex(s => s.id === 'blog-head-meta');
+      const i = GEO_SPOTS.findIndex(s => s.id === 'blog-index');
       if (i >= 0) currentIndex = i;
       return;
     }
 
-    const i = GEO_SPOTS.findIndex(s => !s.link && s.page === page);
-    if (i >= 0) currentIndex = i;
+    currentIndex = 0;
   }
 
   function initTour() {
@@ -407,9 +486,13 @@
       openPanel();
       updatePanel();
       const spot = GEO_SPOTS[currentIndex];
-      if (isOnPage(spot) && spot.selector) {
-        setTimeout(() => scrollToSpot(spot), 250);
-      }
+      setTimeout(() => {
+        if (spot.previewUrl) {
+          showFilePreview(spot);
+        } else if (isOnPage(spot) && spot.selector) {
+          scrollToSpot(spot);
+        }
+      }, 300);
     } else {
       const toggle = document.getElementById('geo-guide-toggle');
       if (toggle) {
