@@ -120,6 +120,7 @@
 
   let currentIndex = 0;
   let panelOpen = false;
+  let spotActivated = false;
   let highlightEl = null;
   let highlightRing = null;
   let highlightListenersBound = false;
@@ -217,7 +218,11 @@
   }
 
   function saveTourState() {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ open: panelOpen, index: currentIndex }));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      open: panelOpen,
+      index: currentIndex,
+      activated: spotActivated
+    }));
   }
 
   function clearTourState() {
@@ -230,6 +235,11 @@
       if (!raw) return;
       const data = JSON.parse(raw);
       if (data.open) panelOpen = true;
+      if (typeof data.activated === 'boolean') {
+        spotActivated = data.activated;
+      } else if (data.open) {
+        spotActivated = true;
+      }
       if (typeof data.index === 'number' && data.index >= 0 && data.index < GEO_SPOTS.length) {
         currentIndex = data.index;
       }
@@ -288,6 +298,7 @@
     panel.hidden = true;
     toggle.setAttribute('aria-expanded', 'false');
     panelOpen = false;
+    spotActivated = false;
     clearHighlight();
     clearTourState();
   }
@@ -296,6 +307,7 @@
     currentIndex = ((index % GEO_SPOTS.length) + GEO_SPOTS.length) % GEO_SPOTS.length;
     const spot = GEO_SPOTS[currentIndex];
     panelOpen = true;
+    spotActivated = true;
     saveTourState();
 
     if (isExternalSpot(spot)) {
@@ -320,6 +332,16 @@
     const url = new URL(window.location.href);
     url.searchParams.set('geo', spot.id);
     window.history.replaceState({}, '', url);
+  }
+
+  function goNext() {
+    if (!spotActivated) {
+      spotActivated = true;
+      saveTourState();
+      goToSpot(currentIndex);
+      return;
+    }
+    goToSpot(currentIndex + 1);
   }
 
   function buildWidget() {
@@ -364,12 +386,12 @@
     wrap.querySelector('#geo-guide-toggle').addEventListener('click', togglePanel);
     wrap.querySelector('#geo-guide-close').addEventListener('click', closePanel);
     wrap.querySelector('#geo-guide-prev').addEventListener('click', () => goToSpot(currentIndex - 1));
-    wrap.querySelector('#geo-guide-next').addEventListener('click', () => goToSpot(currentIndex + 1));
+    wrap.querySelector('#geo-guide-next').addEventListener('click', goNext);
 
     document.addEventListener('keydown', (e) => {
       if (!panelOpen) return;
       if (e.key === 'ArrowLeft') goToSpot(currentIndex - 1);
-      if (e.key === 'ArrowRight') goToSpot(currentIndex + 1);
+      if (e.key === 'ArrowRight') goNext();
       if (e.key === 'Escape') closePanel();
     });
   }
@@ -380,15 +402,10 @@
       return;
     }
     panelOpen = true;
+    spotActivated = false;
     saveTourState();
     openPanel();
     updatePanel();
-    const spot = GEO_SPOTS[currentIndex];
-    if (isExternalSpot(spot)) {
-      openSpotTabs(spot);
-    } else if (isOnPage(spot)) {
-      scrollToSpot(spot);
-    }
   }
 
   function updatePanel() {
