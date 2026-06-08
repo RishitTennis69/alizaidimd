@@ -3,12 +3,40 @@
 
   const GEO_SPOTS = [
     {
-      id: 'head-meta',
+      id: 'physician-jsonld',
       page: 'index.html',
-      label: 'JSON-LD & Head Metadata',
+      label: 'Physician JSON-LD',
       category: 'Schema',
-      selector: '#geo-spot-head-meta',
-      desc: 'Physician JSON-LD, FAQPage JSON-LD, Open Graph, Twitter cards, and meta description — all in the page <head>.'
+      selector: null,
+      desc: 'Structured Physician data in the homepage <head> — opens in a separate tab.',
+      link: 'geo-ref/physician-jsonld.html'
+    },
+    {
+      id: 'faq-schema',
+      page: 'index.html',
+      label: 'FAQPage JSON-LD',
+      category: 'Schema',
+      selector: null,
+      desc: 'FAQPage structured data paired with the homepage FAQ accordion — opens in a separate tab.',
+      link: 'geo-ref/faq-schema.html'
+    },
+    {
+      id: 'social-meta',
+      page: 'index.html',
+      label: 'Open Graph & Twitter Meta',
+      category: 'Schema',
+      selector: null,
+      desc: 'Social sharing tags in the homepage <head> — opens in a separate tab.',
+      link: 'geo-ref/social-meta.html'
+    },
+    {
+      id: 'meta-description',
+      page: 'index.html',
+      label: 'Meta Description',
+      category: 'Schema',
+      selector: null,
+      desc: 'The meta description tag search engines use for the homepage snippet — opens in a separate tab.',
+      link: 'geo-ref/meta-description.html'
     },
     {
       id: 'homepage-blog',
@@ -59,6 +87,15 @@
       desc: 'The <main> element gives crawlers a clear content boundary.'
     },
     {
+      id: 'blog-head-meta',
+      page: 'blog.html',
+      label: 'Blog JSON-LD',
+      category: 'Schema',
+      selector: null,
+      desc: 'Blog structured data in blog.html <head> — opens in a separate tab.',
+      link: 'geo-ref/blog-schema.html'
+    },
+    {
       id: 'blog-index',
       page: 'blog.html',
       label: 'Blog Index',
@@ -84,24 +121,30 @@
     },
     {
       id: 'robots-txt',
+      page: 'robots.txt',
       label: 'robots.txt',
       category: 'Crawler',
-      previewUrl: 'robots.txt',
-      desc: 'Tells search bots and AI crawlers (GPTBot, ClaudeBot, etc.) they are allowed to index the site.'
+      selector: null,
+      desc: 'Tells search bots and AI crawlers (GPTBot, ClaudeBot, etc.) they are allowed to index the site.',
+      link: 'robots.txt'
     },
     {
       id: 'sitemap-xml',
+      page: 'sitemap.xml',
       label: 'sitemap.xml',
       category: 'Crawler',
-      previewUrl: 'sitemap.xml',
-      desc: 'XML URL map listing pages for crawlers.'
+      selector: null,
+      desc: 'XML URL map listing pages for crawlers.',
+      link: 'sitemap.xml'
     },
     {
       id: 'llms-txt',
+      page: 'llms.txt',
       label: 'llms.txt',
       category: 'Crawler',
-      previewUrl: 'llms.txt',
-      desc: 'Plain-text site summary for LLM crawlers — shown below when you visit this stop.'
+      selector: null,
+      desc: 'Plain-text site summary for LLM crawlers.',
+      link: 'llms.txt'
     }
   ];
 
@@ -162,7 +205,7 @@
   }
 
   function spotUrl(spot) {
-    if (spot.previewUrl) return null;
+    if (spot.link) return spot.link;
     if (spot.page === 'post.html') {
       return `post.html?p=why-i-care-more-about-when-you-wake-up-than-when-you-go-to-bed&geo=${spot.id}`;
     }
@@ -170,7 +213,7 @@
   }
 
   function isOnPage(spot) {
-    if (spot.previewUrl) return true;
+    if (spot.link) return false;
     const page = currentPageFile();
     return page === spot.page || (spot.page === 'index.html' && (page === '' || page === 'index.html'));
   }
@@ -202,17 +245,10 @@
     }
   }
 
-  function hideFilePreviewBox() {
-    const box = document.getElementById('geo-file-preview');
-    if (box) box.hidden = true;
-  }
-
   function clearHighlight() {
-    document.querySelectorAll('.geo-spot-chip.geo-guide-highlight').forEach((el) => {
+    document.querySelectorAll('.geo-guide-highlight').forEach((el) => {
       el.classList.remove('geo-guide-highlight');
-      el.setAttribute('aria-hidden', 'true');
     });
-    hideFilePreviewBox();
     if (highlightEl) {
       highlightEl.classList.remove('geo-guide-highlight');
       highlightEl = null;
@@ -225,73 +261,8 @@
   function applyHighlight(el) {
     highlightEl = el;
     el.classList.add('geo-guide-highlight');
-    if (el.classList.contains('geo-spot-chip')) {
-      el.setAttribute('aria-hidden', 'false');
-    }
     positionHighlightRing(el);
     smoothScrollTo(el);
-  }
-
-  function ensureFilePreviewBox() {
-    let box = document.getElementById('geo-file-preview');
-    if (!box) {
-      box = document.createElement('div');
-      box.id = 'geo-file-preview';
-      box.className = 'geo-file-preview';
-      box.hidden = true;
-      box.innerHTML = `
-        <p class="geo-file-preview-label"></p>
-        <pre class="geo-file-preview-content"></pre>
-      `;
-      document.body.appendChild(box);
-    }
-    return box;
-  }
-
-  async function showFilePreview(spot) {
-    clearHighlight();
-    const box = ensureFilePreviewBox();
-    const label = box.querySelector('.geo-file-preview-label');
-    const pre = box.querySelector('.geo-file-preview-content');
-    label.textContent = spot.previewUrl;
-    pre.textContent = 'Loading…';
-    box.hidden = false;
-
-    try {
-      const res = await fetch(spot.previewUrl);
-      pre.textContent = await res.text();
-    } catch {
-      pre.textContent = 'Could not load file.';
-    }
-
-    applyHighlight(box);
-    loadPanelFileSnippet(spot);
-  }
-
-  async function loadPanelFileSnippet(spot) {
-    const snippet = document.getElementById('geo-guide-file-snippet');
-    if (!snippet || !spot.previewUrl) {
-      if (snippet) snippet.hidden = true;
-      return;
-    }
-
-    snippet.hidden = false;
-    snippet.textContent = 'Loading…';
-
-    try {
-      const res = await fetch(spot.previewUrl);
-      snippet.textContent = await res.text();
-    } catch {
-      snippet.textContent = 'Could not load file.';
-    }
-  }
-
-  function hidePanelFileSnippet() {
-    const snippet = document.getElementById('geo-guide-file-snippet');
-    if (snippet) {
-      snippet.hidden = true;
-      snippet.textContent = '';
-    }
   }
 
   function scrollToSpot(spot, attempt = 0) {
@@ -304,8 +275,8 @@
       }
       return;
     }
+
     applyHighlight(el);
-    hidePanelFileSnippet();
   }
 
   function openPanel() {
@@ -325,7 +296,6 @@
     toggle.setAttribute('aria-expanded', 'false');
     panelOpen = false;
     clearHighlight();
-    hidePanelFileSnippet();
     clearTourState();
   }
 
@@ -335,13 +305,10 @@
     panelOpen = true;
     saveTourState();
 
-    if (spot.previewUrl) {
+    if (spot.link) {
       openPanel();
       updatePanel();
-      showFilePreview(spot);
-      const url = new URL(window.location.href);
-      url.searchParams.set('geo', spot.id);
-      window.history.replaceState({}, '', url);
+      window.open(spot.link, '_blank', 'noopener');
       return;
     }
 
@@ -372,7 +339,6 @@
         <p class="geo-guide-counter" id="geo-guide-counter">1 / ${GEO_SPOTS.length}</p>
         <h3 class="geo-guide-title" id="geo-guide-title"></h3>
         <p class="geo-guide-desc" id="geo-guide-desc"></p>
-        <pre class="geo-guide-file-snippet" id="geo-guide-file-snippet" hidden></pre>
         <div class="geo-guide-actions">
           <button type="button" class="geo-guide-btn geo-guide-prev" id="geo-guide-prev">&larr; Prev</button>
           <button type="button" class="geo-guide-btn geo-guide-next" id="geo-guide-next">Next &rarr;</button>
@@ -422,8 +388,8 @@
     openPanel();
     updatePanel();
     const spot = GEO_SPOTS[currentIndex];
-    if (spot.previewUrl) {
-      showFilePreview(spot);
+    if (spot.link) {
+      window.open(spot.link, '_blank', 'noopener');
     } else if (isOnPage(spot)) {
       scrollToSpot(spot);
     }
@@ -436,10 +402,6 @@
     document.getElementById('geo-guide-badge').textContent = spot.category;
     document.getElementById('geo-guide-desc').textContent = spot.desc;
     document.getElementById('geo-guide-toggle').textContent = `GEO Guide (${currentIndex + 1}/${GEO_SPOTS.length})`;
-
-    if (!spot.previewUrl) {
-      hidePanelFileSnippet();
-    }
 
     document.querySelectorAll('.geo-guide-list-item').forEach((btn, i) => {
       btn.classList.toggle('active', i === currentIndex);
@@ -487,8 +449,8 @@
       updatePanel();
       const spot = GEO_SPOTS[currentIndex];
       setTimeout(() => {
-        if (spot.previewUrl) {
-          showFilePreview(spot);
+        if (spot.link) {
+          window.open(spot.link, '_blank', 'noopener');
         } else if (isOnPage(spot) && spot.selector) {
           scrollToSpot(spot);
         }
